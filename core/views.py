@@ -173,3 +173,31 @@ class TickView(APIView):
         if not secret or not hmac.compare_digest(secret, supplied):
             return Response({"detail": "Forbidden."}, status=403)
         return Response({"ran": dispatch_due_checks()})
+
+
+class TestEmailView(APIView):
+    """Temporary: open /api/internal/test-email/?key=<CRON_SECRET>&to=<address> to see if SMTP works."""
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        import hmac
+        from django.core.mail import send_mail
+        secret = settings.CRON_SECRET
+        supplied = request.query_params.get("key", "")
+        if not secret or not hmac.compare_digest(secret, supplied):
+            return Response({"detail": "Forbidden."}, status=403)
+        to = request.query_params.get("to") or getattr(settings, "EMAIL_HOST_USER", "")
+        info = {
+            "backend": settings.EMAIL_BACKEND.split(".")[-2],
+            "host": getattr(settings, "EMAIL_HOST", None),
+            "user_set": bool(getattr(settings, "EMAIL_HOST_USER", "")),
+            "password_length": len(getattr(settings, "EMAIL_HOST_PASSWORD", "")),
+            "to": to,
+        }
+        try:
+            send_mail("PingBoard test email", "If you can read this, email alerts work.",
+                      settings.DEFAULT_FROM_EMAIL, [to])
+            return Response({"sent": True, **info})
+        except Exception as exc:
+            return Response({"sent": False, "error": repr(exc), **info})
