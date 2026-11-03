@@ -197,6 +197,11 @@ if os.environ.get("EMAIL_HOST"):
     EMAIL_USE_TLS = True
     EMAIL_TIMEOUT = 15
 
+# Render's free plan blocks SMTP ports, so prefer Brevo's HTTPS API when a key is set.
+if os.environ.get("BREVO_API_KEY"):
+    BREVO_API_KEY = os.environ["BREVO_API_KEY"]
+    EMAIL_BACKEND = "core.brevo_backend.BrevoEmailBackend"
+
 # No Redis? Run the check and alert tasks inline. An outside scheduler calls
 # POST /api/internal/tick/ every minute instead of Celery Beat.
 CRON_SECRET = os.environ.get("CRON_SECRET", "")
