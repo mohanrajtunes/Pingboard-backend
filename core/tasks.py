@@ -37,7 +37,7 @@ def send_alert_email(incident_id, kind):
         subject = f"[UP] {monitor.name} is back online"
         body = f"{monitor.name} ({monitor.url}) has recovered."
     body += f"\n\nOpen dashboard: {settings.FRONTEND_URL}/app/monitors/{monitor.id}"
-        try:
+    try:
         send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [to])
         logger.warning("ALERT EMAIL SENT to %s: %s", to, subject)
     except Exception:
