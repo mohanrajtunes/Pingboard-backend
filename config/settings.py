@@ -173,3 +173,32 @@ EMAIL_BACKEND = os.environ.get(
 )
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "PingBoard <alerts@pingboard.local>")
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "https://localhost:5173")
+
+# ================= Production (Render) =================
+def _csv(name, default=""):
+    return [x.strip() for x in os.environ.get(name, default).split(",") if x.strip()]
+
+ALLOWED_HOSTS = _csv("ALLOWED_HOSTS", "localhost,127.0.0.1")
+CORS_ALLOWED_ORIGINS = _csv("CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
+CSRF_TRUSTED_ORIGINS = _csv("CSRF_TRUSTED_ORIGINS")
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Serve static files (admin CSS) straight from the app.
+MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Real email when EMAIL_HOST is set, otherwise printed in the logs.
+if os.environ.get("EMAIL_HOST"):
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = os.environ["EMAIL_HOST"]
+    EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+    EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+    EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+    EMAIL_USE_TLS = True
+    EMAIL_TIMEOUT = 15
+
+# No Redis? Run the check and alert tasks inline. An outside scheduler calls
+# POST /api/internal/tick/ every minute instead of Celery Beat.
+CRON_SECRET = os.environ.get("CRON_SECRET", "")
+if not os.environ.get("CELERY_BROKER_URL"):
+    CELERY_TASK_ALWAYS_EAGER = True

@@ -159,3 +159,17 @@ class PublicStatusView(APIView):
 class LoginView(TokenObtainPairView):
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = "auth"
+
+class TickView(APIView):
+    """Called every minute by an outside scheduler (cron-job.org) when there is no Celery worker."""
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        import hmac
+        from .tasks import dispatch_due_checks
+        secret = settings.CRON_SECRET
+        supplied = request.headers.get("X-Cron-Secret", "")
+        if not secret or not hmac.compare_digest(secret, supplied):
+            return Response({"detail": "Forbidden."}, status=403)
+        return Response({"ran": dispatch_due_checks()})

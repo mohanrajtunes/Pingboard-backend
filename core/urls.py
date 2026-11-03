@@ -8,6 +8,7 @@ router.register("monitors", views.MonitorViewSet, basename="monitor")
 
 urlpatterns = [
     path("health/", views.health),
+    path("internal/tick/", views.TickView.as_view()),
     path("auth/register/", views.RegisterView.as_view()),
     path("auth/token/", views.LoginView.as_view()),
     path("auth/token/refresh/", TokenRefreshView.as_view()),
