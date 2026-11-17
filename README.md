@@ -12,6 +12,8 @@ and a public status page.
 
 *Free hosting: the first request can take up to a minute while the server wakes up.*
 
+![PingBoard dashboard with three monitors, uptime and response times](screenshots/pingboard.png)
+
 ## Features
 - JWT authentication (register, login, refresh)
 - Monitors with 1 to 60 minute intervals, per-user limits and duplicate protection
@@ -27,8 +29,10 @@ and a public status page.
 Django 5, Django REST Framework, PostgreSQL, Celery, Redis, Docker Compose, pytest
 
 ## Run it
-    cp .env.example .env
-    docker compose up --build
+```bash
+cp .env.example .env
+docker compose up --build
+```
 
 API runs at http://127.0.0.1:8000/api/
 
@@ -51,4 +55,11 @@ API runs at http://127.0.0.1:8000/api/
 - Redirects are followed manually and every hop is validated against SSRF.
 
 ## Tests
-    pytest
+```bash
+pytest
+```
+
+Tests cover sign-up and login, creating monitors, duplicate URLs and blocking private addresses. They run on every push with GitHub Actions.
+
+## License
+MIT
