@@ -1,8 +1,16 @@
 # PingBoard
 
+[![tests](https://github.com/mohanrajtunes/Pingboard-backend/actions/workflows/tests.yml/badge.svg)](https://github.com/mohanrajtunes/Pingboard-backend/actions/workflows/tests.yml)
+
 Uptime monitoring service. Add a URL, and PingBoard checks it on a schedule,
 opens an incident when it goes down, emails you, and shows uptime stats
 and a public status page.
+
+## Live
+- **App:** https://pingboard-frontend.vercel.app
+- **Frontend repo:** https://github.com/mohanrajtunes/Pingboard-frontend
+
+*Free hosting: the first request can take up to a minute while the server wakes up.*
 
 ## Features
 - JWT authentication (register, login, refresh)
